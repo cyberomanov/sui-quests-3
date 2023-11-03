@@ -25,9 +25,12 @@ def main_play_game(sui_config: SuiConfig):
             while True:
                 response = requests.get('https://www.suilette.com/api/sui-game')
                 game_object_id = response.json()['result']['game_object_id']
-                start_time = response.json()['result']['start_time'][:-3]
+                start_time = int(response.json()['result']['start_time'][:-3])
 
-                if time.time() < float(start_time) - 2:
+                current_time = int(time.time())
+
+                difference = abs(start_time - current_time)
+                if difference > 5:
 
                     result = play_suilette_tx(sui_config=sui_config,
                                               color_index=color_index,
