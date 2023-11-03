@@ -25,17 +25,15 @@ def main_play_game(sui_config: SuiConfig):
             while True:
                 response = requests.get('https://www.suilette.com/api/sui-game')
                 game_object_id = response.json()['result']['game_object_id']
-                start_time = int(response.json()['result']['start_time'][:-3])
 
-                current_time = int(time.time())
-
-                difference = abs(start_time - current_time)
-                if difference > 5:
-
-                    result = play_suilette_tx(sui_config=sui_config,
-                                              color_index=color_index,
-                                              game_object_id=game_object_id,
-                                              bet_amount=bet_amount)
+                result = play_suilette_tx(sui_config=sui_config,
+                                          color_index=color_index.value,
+                                          game_object_id=game_object_id,
+                                          bet_amount=bet_amount)
+                if not result.digest:
+                    time.sleep(3)
+                    continue
+                else:
                     sleep = 0
                     if result.reason:
                         if result.digest:
@@ -54,10 +52,8 @@ def main_play_game(sui_config: SuiConfig):
                         logger.info(f'{short_address(result.address)} | {color_index.name} | digest: {result.digest} | '
                                     f'sleep: {sleep}s.')
 
-                    time.sleep(sleep)
-                    break
-                else:
-                    time.sleep(3)
+                time.sleep(sleep)
+                break
 
         else:
             logger.warning(f'{short_address(str(sui_config.active_address))} | '
