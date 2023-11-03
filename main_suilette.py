@@ -6,7 +6,7 @@ import requests
 from loguru import logger
 from pysui import SuiConfig
 
-from config import BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC, COINFLIP_COUNT_PER_SESSION, SHUFFLE_ACCOUNTS
+from config import BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC, SUILETTE_COUNT_PER_SESSION, SHUFFLE_ACCOUNTS
 from datatypes.sui import SuiletteColor
 from utils.add_logger import add_logger
 from utils.other import short_address, read_mnemonics
@@ -69,7 +69,7 @@ def single_executor(sui_config: SuiConfig):
     logger.info(f'{str(sui_config.active_address)} | SUILETTE | sleep: {unique_sleep} sec.')
     time.sleep(unique_sleep)
 
-    flips_per_session = random.randint(COINFLIP_COUNT_PER_SESSION[0], COINFLIP_COUNT_PER_SESSION[1])
+    flips_per_session = random.randint(SUILETTE_COUNT_PER_SESSION[0], SUILETTE_COUNT_PER_SESSION[1])
     broken = False
     for _ in range(flips_per_session):
         play_game_result = main_play_game(
