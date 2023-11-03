@@ -22,37 +22,39 @@ def main_play_game(sui_config: SuiConfig):
         if balance.float > bet_amount:
             color_index = random.choice(list(SuiletteColor))
 
-            response = requests.get('https://www.suilette.com/api/sui-game')
-            game_object_id = response.json()['result']['game_object_id']
-            start_time = response.json()['result']['start_time'][:-3]
+            while True:
+                response = requests.get('https://www.suilette.com/api/sui-game')
+                game_object_id = response.json()['result']['game_object_id']
+                start_time = response.json()['result']['start_time'][:-3]
 
-            if time.time() < float(start_time) - 2:
+                if time.time() < float(start_time) - 2:
 
-                result = play_suilette_tx(sui_config=sui_config,
-                                          color_index=color_index,
-                                          game_object_id=game_object_id,
-                                          bet_amount=bet_amount)
-                sleep = 0
-                if result.reason:
-                    if result.digest:
+                    result = play_suilette_tx(sui_config=sui_config,
+                                              color_index=color_index,
+                                              game_object_id=game_object_id,
+                                              bet_amount=bet_amount)
+                    sleep = 0
+                    if result.reason:
+                        if result.digest:
+                            sleep = random.randint(BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[0],
+                                                   BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[1])
+                            logger.error(
+                                f'{short_address(result.address)} | {color_index.name} | digest: {result.digest} | '
+                                f'reason: {result.reason} | sleep: {sleep}s.')
+                        else:
+                            logger.error(
+                                f'{short_address(result.address)} | {color_index.name} | '
+                                f'reason: {result.reason}.')
+                    else:
                         sleep = random.randint(BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[0],
                                                BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[1])
-                        logger.error(
-                            f'{short_address(result.address)} | {color_index.name} | digest: {result.digest} | '
-                            f'reason: {result.reason} | sleep: {sleep}s.')
-                    else:
-                        logger.error(
-                            f'{short_address(result.address)} | {color_index.name} | '
-                            f'reason: {result.reason}.')
-                else:
-                    sleep = random.randint(BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[0],
-                                           BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[1])
-                    logger.info(f'{short_address(result.address)} | {color_index.name} | digest: {result.digest} | '
-                                f'sleep: {sleep}s.')
+                        logger.info(f'{short_address(result.address)} | {color_index.name} | digest: {result.digest} | '
+                                    f'sleep: {sleep}s.')
 
-                time.sleep(sleep)
-            else:
-                time.sleep(3)
+                    time.sleep(sleep)
+                    break
+                else:
+                    time.sleep(3)
 
         else:
             logger.warning(f'{short_address(str(sui_config.active_address))} | '
