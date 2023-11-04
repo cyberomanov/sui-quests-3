@@ -65,22 +65,25 @@ def main_play_game(sui_config: SuiConfig):
 
 
 def single_executor(sui_config: SuiConfig):
-    unique_sleep = random.randint(BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[0], BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[1])
-    logger.info(f'{str(sui_config.active_address)} | SUILETTE | sleep: {unique_sleep} sec.')
-    time.sleep(unique_sleep)
+    try:
+        unique_sleep = random.randint(BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[0], BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[1])
+        logger.info(f'{str(sui_config.active_address)} | SUILETTE | sleep: {unique_sleep} sec.')
+        time.sleep(unique_sleep)
 
-    flips_per_session = random.randint(SUILETTE_COUNT_PER_SESSION[0], SUILETTE_COUNT_PER_SESSION[1])
-    broken = False
-    for _ in range(flips_per_session):
-        play_game_result = main_play_game(
-            sui_config=sui_config
-        )
-        if play_game_result == 'zero_balance':
-            broken = True
-            break
+        flips_per_session = random.randint(SUILETTE_COUNT_PER_SESSION[0], SUILETTE_COUNT_PER_SESSION[1])
+        broken = False
+        for _ in range(flips_per_session):
+            play_game_result = main_play_game(
+                sui_config=sui_config
+            )
+            if play_game_result == 'zero_balance':
+                broken = True
+                break
 
-    if not broken:
-        logger.success(f'{str(sui_config.active_address)} | has suiletted {flips_per_session} games.')
+        if not broken:
+            logger.success(f'{str(sui_config.active_address)} | has suiletted {flips_per_session} games.')
+    except Exception as e:
+        logger.exception(e)
 
 
 def run_suilette_executor(sui_configs: list[SuiConfig]):

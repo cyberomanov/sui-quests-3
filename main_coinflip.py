@@ -57,44 +57,47 @@ def main_play_game(sui_config: SuiConfig, associated_kiosk_addr: str, bullshark_
 
 
 def single_executor(sui_config: SuiConfig):
-    unique_sleep = random.randint(BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[0], BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[1])
-    logger.info(f'{str(sui_config.active_address)} | COINFLIP | sleep: {unique_sleep} sec.')
-    time.sleep(unique_sleep)
+    try:
+        unique_sleep = random.randint(BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[0], BIG_SLEEP_BETWEEN_ACTIONS_IN_SEC[1])
+        logger.info(f'{str(sui_config.active_address)} | COINFLIP | sleep: {unique_sleep} sec.')
+        time.sleep(unique_sleep)
 
-    associated_kiosk_addr = get_associated_kiosk(address=str(sui_config.active_address))
-    kiosk_dynamic_fields = get_bullshark_id(kiosk_addr=associated_kiosk_addr).result.data
+        associated_kiosk_addr = get_associated_kiosk(address=str(sui_config.active_address))
+        kiosk_dynamic_fields = get_bullshark_id(kiosk_addr=associated_kiosk_addr).result.data
 
-    capy_addr = None
-    bullshark_addr = None
-    for field in kiosk_dynamic_fields:
-        if 'bullshark' in str(field.objectType).lower():
-            bullshark_addr = field.objectId
-        elif 'capy' in str(field.objectType).lower():
-            capy_addr = field.objectId
+        capy_addr = None
+        bullshark_addr = None
+        for field in kiosk_dynamic_fields:
+            if 'bullshark' in str(field.objectType).lower():
+                bullshark_addr = field.objectId
+            elif 'capy' in str(field.objectType).lower():
+                capy_addr = field.objectId
 
-    if bullshark_addr or capy_addr:
-        flips_per_session = random.randint(COINFLIP_COUNT_PER_SESSION[0], COINFLIP_COUNT_PER_SESSION[1])
-        broken = False
-        for _ in range(flips_per_session):
-            play_game_result = main_play_game(
-                sui_config=sui_config,
-                associated_kiosk_addr=associated_kiosk_addr,
-                bullshark_addr=capy_addr if capy_addr else bullshark_addr,
-                bullshark=False if capy_addr else True
-            )
-            if play_game_result == 'zero_balance':
-                broken = True
-                break
+        if bullshark_addr or capy_addr:
+            flips_per_session = random.randint(COINFLIP_COUNT_PER_SESSION[0], COINFLIP_COUNT_PER_SESSION[1])
+            broken = False
+            for _ in range(flips_per_session):
+                play_game_result = main_play_game(
+                    sui_config=sui_config,
+                    associated_kiosk_addr=associated_kiosk_addr,
+                    bullshark_addr=capy_addr if capy_addr else bullshark_addr,
+                    bullshark=False if capy_addr else True
+                )
+                if play_game_result == 'zero_balance':
+                    broken = True
+                    break
 
-        if not broken:
-            if capy_addr:
-                logger.success(f'{str(sui_config.active_address)} | '
-                               f'has coinflipped {flips_per_session} times with CAPY.')
-            else:
-                logger.success(f'{str(sui_config.active_address)} | '
-                               f'has coinflipped {flips_per_session} times with BULLSHARK.')
-    else:
-        logger.error(f'{str(sui_config.active_address)} | does not have SuiFrens.')
+            if not broken:
+                if capy_addr:
+                    logger.success(f'{str(sui_config.active_address)} | '
+                                   f'has coinflipped {flips_per_session} times with CAPY.')
+                else:
+                    logger.success(f'{str(sui_config.active_address)} | '
+                                   f'has coinflipped {flips_per_session} times with BULLSHARK.')
+        else:
+            logger.error(f'{str(sui_config.active_address)} | does not have SuiFrens.')
+    except Exception as e:
+        logger.exception(e)
 
 
 def run_coinflip_executor(sui_configs: list[SuiConfig]):
