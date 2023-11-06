@@ -35,10 +35,28 @@ def single_executor(sui_config: SuiConfig):
         leaderboard = LeaderboardResponse.parse_obj(json.loads(response.content)[0])
         data = leaderboard.result.data
 
+        used_apps_log = ''
+        ignore_list = ['FIRST_APPEARANCE_CHECKPOINT', 'HAS_SUINS',
+                       'ENGAGEMENT_MULTIPLIER', 'IS_ELIGIBLE',
+                       'RANK', 'appsUsed']
+
+        for metadata in data.metadata:
+            if metadata[1] and metadata[0] not in ignore_list:
+                used_apps_log += f'{metadata[0]}={metadata[1]:.2f} '
+
         if data:
-            logger.info(f"{str(sui_config.active_address)} | "
-                        f"used_apps: {data.metadata.appsUsed}, quest_points: {data.score}, "
-                        f"quest_rank: {data.rank}, rewards_status: {data.metadata.IS_ELIGIBLE}")
+            if data.bot:
+                logger.info(f"{str(sui_config.active_address)} | "
+                            f"points_per_apps: {used_apps_log} | "
+                            f"total: {data.score}, "
+                            f"quest_rank: {data.rank}, "
+                            f"rewards_status: {data.metadata.IS_ELIGIBLE}.")
+            else:
+                logger.warning(f"{str(sui_config.active_address)} | "
+                             f"points_per_apps: {used_apps_log} | "
+                             f"total: {data.score}, "
+                             f"quest_rank: {data.rank}, "
+                             f"rewards_status: {data.metadata.IS_ELIGIBLE} | BOT.")
 
             return leaderboard
         else:
