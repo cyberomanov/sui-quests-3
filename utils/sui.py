@@ -292,6 +292,32 @@ def mint_game_tx(sui_config: SuiConfig) -> SuiTxResult:
     return build_and_execute_tx(sui_config=sui_config, transaction=transaction)
 
 
+def play_coinflip_dummy_tx(sui_config: SuiConfig,
+                           coinflip_side: CoinflipSide,
+                           bet_amount: int) -> SuiTxResult:
+    transaction = init_transaction(sui_config=sui_config, merge_gas_budget=True)
+
+    bet_amount_in_dec = int(bet_amount * 10 ** SUI_DENOMINATION)
+    split = transaction.split_coin(
+        coin=transaction.gas,
+        amounts=[bet_amount_in_dec]
+    )
+
+    transaction.move_call(
+        target=SuiString(GAME_COINFLIP_TARGET_DUMMY),
+        arguments=[
+            ObjectID(GAME_COINFLIP_ARG1),
+            SuiU8(coinflip_side.value),
+            [SuiU8(random.randint(1, 255)) for _ in range(512)],
+            split
+        ],
+        type_arguments=[
+            '0x2::sui::SUI'
+        ]
+    )
+    return build_and_execute_tx(sui_config=sui_config, transaction=transaction)
+
+
 def play_coinflip_tx(sui_config: SuiConfig,
                      associated_kiosk_addr: str,
                      bullshark_addr: str,

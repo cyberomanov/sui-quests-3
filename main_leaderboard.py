@@ -46,17 +46,18 @@ def single_executor(sui_config: SuiConfig):
 
         if data:
             if data.bot:
-                logger.info(f"{str(sui_config.active_address)} | "
+                leaderboard.result.data.metadata.IS_ELIGIBLE = 'BOT'
+                logger.warning(f"{data.address} | "
+                               f"points_per_apps: {used_apps_log} | "
+                               f"total: {data.score}, "
+                               f"quest_rank: {data.rank}, "
+                               f"rewards_status: {data.metadata.IS_ELIGIBLE} | BOT.")
+            else:
+                logger.info(f"{data.address} | "
                             f"points_per_apps: {used_apps_log} | "
                             f"total: {data.score}, "
                             f"quest_rank: {data.rank}, "
                             f"rewards_status: {data.metadata.IS_ELIGIBLE}.")
-            else:
-                logger.warning(f"{str(sui_config.active_address)} | "
-                             f"points_per_apps: {used_apps_log} | "
-                             f"total: {data.score}, "
-                             f"quest_rank: {data.rank}, "
-                             f"rewards_status: {data.metadata.IS_ELIGIBLE} | BOT.")
 
             return leaderboard
         else:
