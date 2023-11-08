@@ -42,7 +42,7 @@ def single_executor(sui_config: SuiConfig):
 
         for metadata in data.metadata:
             if metadata[1] and metadata[0] not in ignore_list:
-                used_apps_log += f'{metadata[0]}={metadata[1]:.2f} '
+                used_apps_log += f'{metadata[0]}={float(metadata[1]):.2f} '
 
         if data:
             if data.bot:
