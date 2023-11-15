@@ -114,6 +114,7 @@ def get_sui_balance(sui_config: SuiConfig, coin_type: SuiString = None, denomina
             if tries <= 5:
                 time.sleep(3)
             else:
+                logger.error(f'{str(sui_config.active_address)}: bad response from rpc, try to get a new one.')
                 return SuiBalance(
                     int=0,
                     float=0
